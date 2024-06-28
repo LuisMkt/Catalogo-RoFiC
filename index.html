@@ -172,6 +172,7 @@
     let row = button.parentElement.parentElement;
     let newRowData = {}; // Objeto para almacenar los datos de la nueva fila
     let inputsValid = true; // Bandera para validar los campos de entrada
+    console.log('Iniciando la validación de campos...');
     Array.from(row.cells).forEach((cell, index) => {
         if (index < row.cells.length - 1) {
             let input = cell.firstElementChild;
@@ -189,6 +190,7 @@
         }
     });
     if (inputsValid) { // Si todos los campos son válidos
+        console.log('Campos validados. Datos a enviar:', newRowData);
         try {
             const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
                 method: 'POST',
@@ -200,9 +202,12 @@
             if (!response.ok) throw new Error('Error al agregar el nuevo servicio');
             loadTableData(); // Recarga los datos de la tabla
             alert("Nuevo servicio agregado exitosamente."); // Muestra una alerta
+            console.log('Nuevo servicio agregado exitosamente.');
         } catch (error) {
             console.error('Error al agregar el nuevo servicio:', error);
         }
+    } else {
+        console.log('Validación de campos fallida.');
     }
 }
     // Función para cancelar la edición de una fila
