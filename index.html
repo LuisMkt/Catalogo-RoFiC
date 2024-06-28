@@ -168,36 +168,43 @@
     }
 
     // Función para guardar una fila editada
-    async function saveRow(button) {
-        let row = button.parentElement.parentElement;
-        let updatedRowData = {}; // Objeto para almacenar los datos actualizados
-        Array.from(row.cells).forEach((cell, index) => {
-            if (index < row.cells.length - 1) {
-                let input = cell.firstElementChild;
-                let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-                if (index === 4 || index === 5 || index === 7) {
-                    updatedRowData[key] = input.value.split('\n'); // Divide el texto por líneas
-                } else {
-                    updatedRowData[key] = input.value;
-                }
+    async function saveNewRow(button) {
+    let row = button.parentElement.parentElement;
+    let newRowData = {}; // Objeto para almacenar los datos de la nueva fila
+    let inputsValid = true; // Bandera para validar los campos de entrada
+    Array.from(row.cells).forEach((cell, index) => {
+        if (index < row.cells.length - 1) {
+            let input = cell.firstElementChild;
+            if (!input.value.trim()) { // Verifica si el campo de entrada está vacío
+                alert("Todos los campos deben ser completados.");
+                inputsValid = false;
+                return;
             }
-        });
+            let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
+            if (index === 4 || index === 5 || index === 7) {
+                newRowData[key] = input.value.split('\n'); // Divide el texto por líneas
+            } else {
+                newRowData[key] = input.value;
+            }
+        }
+    });
+    if (inputsValid) { // Si todos los campos son válidos
         try {
-            const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud PUT a la API
-                method: 'PUT',
+            const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(updatedRowData)
+                body: JSON.stringify(newRowData)
             });
-            if (!response.ok) throw new Error('Error al actualizar el servicio');
+            if (!response.ok) throw new Error('Error al agregar el nuevo servicio');
             loadTableData(); // Recarga los datos de la tabla
-            alert("Servicio actualizado exitosamente."); // Muestra una alerta
+            alert("Nuevo servicio agregado exitosamente."); // Muestra una alerta
         } catch (error) {
-            console.error('Error al actualizar el servicio:', error);
+            console.error('Error al agregar el nuevo servicio:', error);
         }
     }
-
+}
     // Función para cancelar la edición de una fila
     function cancelEdit(button) {
         loadTableData(); // Recarga los datos de la tabla
