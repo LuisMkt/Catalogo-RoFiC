@@ -168,48 +168,36 @@
     }
 
     // Función para guardar una fila editada
-    async function saveNewRow(button) {
-    let row = button.parentElement.parentElement;
-    let newRowData = {}; // Objeto para almacenar los datos de la nueva fila
-    let inputsValid = true; // Bandera para validar los campos de entrada
-    console.log('Iniciando la validación de campos...');
-    Array.from(row.cells).forEach((cell, index) => {
-        if (index < row.cells.length - 1) {
-            let input = cell.firstElementChild;
-            if (!input.value.trim()) { // Verifica si el campo de entrada está vacío
-                alert("Todos los campos deben ser completados.");
-                inputsValid = false;
-                return;
+    async function saveRow(button) {
+        let row = button.parentElement.parentElement;
+        let updatedRowData = {}; // Objeto para almacenar los datos actualizados
+        Array.from(row.cells).forEach((cell, index) => {
+            if (index < row.cells.length - 1) {
+                let input = cell.firstElementChild;
+                let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
+                if (index === 4 || index === 5 || index === 7) {
+                    updatedRowData[key] = input.value.split('\n'); // Divide el texto por líneas
+                } else {
+                    updatedRowData[key] = input.value;
+                }
             }
-            let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-            if (index === 4 || index === 5 || index === 7) {
-                newRowData[key] = input.value.split('\n'); // Divide el texto por líneas
-            } else {
-                newRowData[key] = input.value;
-            }
-        }
-    });
-    if (inputsValid) { // Si todos los campos son válidos
-        console.log('Campos validados. Datos a enviar:', newRowData);
+        });
         try {
-            const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
-                method: 'POST',
+            const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud PUT a la API
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(newRowData)
+                body: JSON.stringify(updatedRowData)
             });
-            if (!response.ok) throw new Error('Error al agregar el nuevo servicio');
+            if (!response.ok) throw new Error('Error al actualizar el servicio');
             loadTableData(); // Recarga los datos de la tabla
-            alert("Nuevo servicio agregado exitosamente."); // Muestra una alerta
-            console.log('Nuevo servicio agregado exitosamente.');
+            alert("Servicio actualizado exitosamente."); // Muestra una alerta
         } catch (error) {
-            console.error('Error al agregar el nuevo servicio:', error);
+            console.error('Error al actualizar el servicio:', error);
         }
-    } else {
-        console.log('Validación de campos fallida.');
     }
-}
+
     // Función para cancelar la edición de una fila
     function cancelEdit(button) {
         loadTableData(); // Recarga los datos de la tabla
@@ -223,11 +211,11 @@
         row.querySelector('.delete-btn').style.display = isEditing ? 'none' : '';
     }
 
-    // Función para eliminar una fila
+        // Función para eliminar una fila
     async function deleteRow(button) {
         let row = button.parentElement.parentElement;
         try {
-                        const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
+            const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
                 method: 'DELETE'
             });
             if (!response.ok) throw new Error('Error al eliminar el servicio');
@@ -240,69 +228,71 @@
 
     // Función para agregar una nueva fila
     function addRow() {
-    const tableBody = document.getElementById('catalogTable').getElementsByTagName('tbody')[0];
-    let row = tableBody.insertRow(); // Inserta una nueva fila en la tabla
-    for (let i = 0; i < 9; i++) {
-        let cell = row.insertCell(); // Inserta una nueva celda en la fila
-        let input = document.createElement(i === 4 || i === 5 || i === 7 ? 'textarea' : 'input');
-        input.type = 'text';
-        input.style.width = '100%';
-        input.style.height = i === 4 || i === 5 || i === 7 ? 'auto' : 'auto';
-        input.oninput = function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px'; // Ajusta la altura según el contenido
-        };
-        cell.appendChild(input);
+        const tableBody = document.getElementById('catalogTable').getElementsByTagName('tbody')[0];
+        let row = tableBody.insertRow(); // Inserta una nueva fila en la tabla
+        for (let i = 0; i < 9; i++) {
+            let cell = row.insertCell(); // Inserta una nueva celda en la fila
+            let input = document.createElement(i === 4 || i === 5 || i === 7 ? 'textarea' : 'input');
+            input.type = 'text';
+            input.style.width = '100%';
+            input.style.height = i === 4 || i === 5 || i === 7 ? 'auto' : 'auto';
+            input.oninput = function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px'; // Ajusta la altura según el contenido
+            };
+            cell.appendChild(input);
+        }
+        let actionsCell = row.insertCell();
+        actionsCell.innerHTML = `
+            <button class="save-btn" onclick="saveNewRow(this)">Guardar</button>
+            <button class="cancel-btn" onclick="cancelNewRow(this)">Cancelar</button>
+        `;
     }
-    let actionsCell = row.insertCell();
-    actionsCell.innerHTML = `
-        <button class="save-btn" onclick="saveNewRow(this)">Guardar</button>
-        <button class="cancel-btn" onclick="cancelNewRow(this)">Cancelar</button>
-    `;
-}
+
     // Función para guardar una nueva fila agregada
     async function saveNewRow(button) {
-    let row = button.parentElement.parentElement;
-    let newRowData = {}; // Objeto para almacenar los datos de la nueva fila
-    let inputsValid = true; // Bandera para validar los campos de entrada
-    console.log('Iniciando la validación de campos...');
-    Array.from(row.cells).forEach((cell, index) => {
-        if (index < row.cells.length - 1) {
-            let input = cell.firstElementChild;
-            if (!input.value.trim()) { // Verifica si el campo de entrada está vacío
-                alert("Todos los campos deben ser completados.");
-                inputsValid = false;
-                return;
+        let row = button.parentElement.parentElement;
+        let newRowData = {}; // Objeto para almacenar los datos de la nueva fila
+        let inputsValid = true; // Bandera para validar los campos de entrada
+        console.log('Iniciando la validación de campos...');
+        Array.from(row.cells).forEach((cell, index) => {
+            if (index < row.cells.length - 1) {
+                let input = cell.firstElementChild;
+                if (!input.value.trim()) { // Verifica si el campo de entrada está vacío
+                    alert("Todos los campos deben ser completados.");
+                    inputsValid = false;
+                    return;
+                }
+                let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
+                if (index === 4 || index === 5 || index === 7) {
+                    newRowData[key] = input.value.split('\n'); // Divide el texto por líneas
+                } else {
+                    newRowData[key] = input.value;
+                }
             }
-            let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-            if (index === 4 || index === 5 || index === 7) {
-                newRowData[key] = input.value.split('\n'); // Divide el texto por líneas
-            } else {
-                newRowData[key] = input.value;
+        });
+        if (inputsValid) { // Si todos los campos son válidos
+            console.log('Campos validados. Datos a enviar:', newRowData);
+            try {
+                const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newRowData)
+                });
+                if (!response.ok) throw new Error('Error al agregar el nuevo servicio');
+                loadTableData(); // Recarga los datos de la tabla
+                alert("Nuevo servicio agregado exitosamente."); // Muestra una alerta
+                console.log('Nuevo servicio agregado exitosamente.');
+            } catch (error) {
+                console.error('Error al agregar el nuevo servicio:', error);
             }
+        } else {
+            console.log('Validación de campos fallida.');
         }
-    });
-    if (inputsValid) { // Si todos los campos son válidos
-        console.log('Campos validados. Datos a enviar:', newRowData);
-        try {
-            const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newRowData)
-            });
-            if (!response.ok) throw new Error('Error al agregar el nuevo servicio');
-            loadTableData(); // Recarga los datos de la tabla
-            alert("Nuevo servicio agregado exitosamente."); // Muestra una alerta
-            console.log('Nuevo servicio agregado exitosamente.');
-        } catch (error) {
-            console.error('Error al agregar el nuevo servicio:', error);
-        }
-    } else {
-        console.log('Validación de campos fallida.');
     }
-}
+
     // Función para cancelar la adición de una nueva fila
     function cancelNewRow(button) {
         let row = button.parentElement.parentElement;
@@ -318,4 +308,4 @@
 
 </body>
 </html>
-
+   
