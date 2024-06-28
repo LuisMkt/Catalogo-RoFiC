@@ -102,7 +102,7 @@
 <button onclick="addRow()">Agregar Servicio</button>
 
 <script>
-    const apiUrl = 'https://topaz-cottony-scraper.glitch.me/catalogData'; // URL de la API
+    const apiUrl = 'https://<nombre-de-tu-proyecto>.glitch.me/catalogData'; // URL de la API
 
     // Función para cargar los datos de la tabla desde la API
     async function loadTableData() {
@@ -145,7 +145,7 @@
     // Función para editar una fila
     function editRow(button) {
         let row = button.parentElement.parentElement;
-                Array.from(row.cells).forEach((cell, index) => {
+        Array.from(row.cells).forEach((cell, index) => {
             if (index < row.cells.length - 1) {
                 if (cell.firstElementChild && cell.firstElementChild.tagName === 'UL') { // Si la celda contiene una lista
                     let input = document.createElement('textarea');
@@ -197,45 +197,16 @@
             console.error('Error al actualizar el servicio:', error);
         }
     }
-
-    // Función para cancelar la edición de una fila
-    function cancelEdit(button) {
-        loadTableData(); // Recarga los datos de la tabla
-    }
-
-    // Función para alternar los botones de edición
-    function toggleEditButtons(row, isEditing) {
-        row.querySelector('.edit-btn').style.display = isEditing ? 'none' : '';
-        row.querySelector('.save-btn').style.display = isEditing ? '' : 'none';
-        row.querySelector('.cancel-btn').style.display = isEditing ? '' : 'none';
-        row.querySelector('.delete-btn').style.display = isEditing ? 'none' : '';
-    }
-
-    // Función para eliminar una fila
-    async function deleteRow(button) {
-        let row = button.parentElement.parentElement;
-        try {
-            const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
-                method: 'DELETE'
-            });
-            if (!response.ok) throw new Error('Error al eliminar el servicio');
-            loadTableData(); // Recarga los datos de la tabla
-            alert("Servicio eliminado exitosamente."); // Muestra una alerta
-        } catch (error) {
-            console.error('Error al eliminar el servicio:', error);
-        }
-    }
-
     // Función para agregar una nueva fila
     function addRow() {
         const tableBody = document.getElementById('catalogTable').getElementsByTagName('tbody')[0];
         let row = tableBody.insertRow(); // Inserta una nueva fila en la tabla
         for (let i = 0; i < 9; i++) {
             let cell = row.insertCell(); // Inserta una nueva celda en la fila
-            let input = document.createElement(i === 2 || i === 3 || i === 6 ? 'textarea' : 'input');
+            let input = document.createElement(i === 4 || i === 5 || i === 7 ? 'textarea' : 'input');
             input.type = 'text';
             input.style.width = '100%';
-            input.style.height = i === 2 || i === 3 || i === 6 ? 'auto' : 'auto';
+            input.style.height = i === 4 || i === 5 || i === 7 ? 'auto' : 'auto';
             input.oninput = function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px'; // Ajusta la altura según el contenido
@@ -263,7 +234,7 @@
                     return;
                 }
                 let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-                if (index === 2 || index === 3 || index === 6) {
+                if (index === 4 || index === 5 || index === 7) {
                     newRowData[key] = input.value.split('\n'); // Divide el texto por líneas
                 } else {
                     newRowData[key] = input.value;
@@ -303,3 +274,6 @@
 
 </body>
 </html>
+
+   
+
