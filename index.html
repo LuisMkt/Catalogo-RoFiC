@@ -211,12 +211,12 @@
         row.querySelector('.delete-btn').style.display = isEditing ? 'none' : '';
     }
 
-        // Función para eliminar una fila
+    // Función para eliminar una fila
     async function deleteRow(button) {
         let row = button.parentElement.parentElement;
         try {
             const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
-                method: 'DELETE'
+                                method: 'DELETE'
             });
             if (!response.ok) throw new Error('Error al eliminar el servicio');
             loadTableData(); // Recarga los datos de la tabla
@@ -308,4 +308,4 @@
 
 </body>
 </html>
-   
+
