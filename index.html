@@ -75,7 +75,7 @@
 
 <header>
     <h1>Catálogo de Servicios</h1>
-    <img src="ruta_al_logo_de_la_agencia.png" alt="Logo de la Agencia"> <!-- Añade la ruta del logo aquí -->
+    <img src="https://via.placeholder.com/50" alt="Logo de la Agencia"> <!-- Usar una imagen de marcador de posición -->
 </header>
 
 <table id="catalogTable">
@@ -182,6 +182,7 @@
                 }
             }
         });
+        console.log('Datos a enviar:', updatedRowData); // Añadir un mensaje de depuración
         try {
             const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud PUT a la API
                 method: 'PUT',
@@ -198,7 +199,7 @@
         }
     }
 
-    // Función para cancelar la edición de una fila
+        // Función para cancelar la edición de una fila
     function cancelEdit(button) {
         loadTableData(); // Recarga los datos de la tabla
     }
@@ -216,7 +217,7 @@
         let row = button.parentElement.parentElement;
         try {
             const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
-                                method: 'DELETE'
+                method: 'DELETE'
             });
             if (!response.ok) throw new Error('Error al eliminar el servicio');
             loadTableData(); // Recarga los datos de la tabla
