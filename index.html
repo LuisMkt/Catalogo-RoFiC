@@ -102,7 +102,7 @@
 <button onclick="addRow()">Agregar Servicio</button>
 
 <script>
-    const apiUrl ='topaz-cottony-scraper.glitch.me/catalogData'; // URL de la API
+    const apiUrl = 'https://topaz-cottony-scraper.glitch.me/catalogData'; // URL de la API
 
     // Función para cargar los datos de la tabla desde la API
     async function loadTableData() {
@@ -175,7 +175,7 @@
             if (index < row.cells.length - 1) {
                 let input = cell.firstElementChild;
                 let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-                if (index === 2 || index === 3 || index === 6) {
+                if (index === 4 || index === 5 || index === 7) {
                     updatedRowData[key] = input.value.split('\n'); // Divide el texto por líneas
                 } else {
                     updatedRowData[key] = input.value;
@@ -197,6 +197,35 @@
             console.error('Error al actualizar el servicio:', error);
         }
     }
+
+    // Función para cancelar la edición de una fila
+    function cancelEdit(button) {
+        loadTableData(); // Recarga los datos de la tabla
+    }
+
+    // Función para alternar los botones de edición
+    function toggleEditButtons(row, isEditing) {
+        row.querySelector('.edit-btn').style.display = isEditing ? 'none' : '';
+        row.querySelector('.save-btn').style.display = isEditing ? '' : 'none';
+        row.querySelector('.cancel-btn').style.display = isEditing ? '' : 'none';
+        row.querySelector('.delete-btn').style.display = isEditing ? 'none' : '';
+    }
+
+    // Función para eliminar una fila
+    async function deleteRow(button) {
+        let row = button.parentElement.parentElement;
+        try {
+                        const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud DELETE a la API
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error('Error al eliminar el servicio');
+            loadTableData(); // Recarga los datos de la tabla
+            alert("Servicio eliminado exitosamente."); // Muestra una alerta
+        } catch (error) {
+            console.error('Error al eliminar el servicio:', error);
+        }
+    }
+
     // Función para agregar una nueva fila
     function addRow() {
         const tableBody = document.getElementById('catalogTable').getElementsByTagName('tbody')[0];
@@ -274,6 +303,4 @@
 
 </body>
 </html>
-
-   
 
