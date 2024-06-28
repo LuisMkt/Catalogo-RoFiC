@@ -104,6 +104,8 @@
 <script>
     const apiUrl = 'https://topaz-cottony-scraper.glitch.me/catalogData'; // URL de la API
 
+    document.addEventListener('DOMContentLoaded', loadTableData); // Carga los datos de la tabla cuando se carga la página
+
     // Función para cargar los datos de la tabla desde la API
     async function loadTableData() {
         try {
@@ -166,45 +168,47 @@
         });
         toggleEditButtons(row, true); // Cambia los botones de edición
     }
+
+    // Función para guardar una fila editada
     async function saveRow(button) {
-    let row = button.parentElement.parentElement;
-    let updatedRowData = {}; // Objeto para almacenar los datos actualizados
-    Array.from(row.cells).forEach((cell, index) => {
-        if (index < row.cells.length - 1) {
-            let input = cell.firstElementChild;
-            let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
-            if (index === 4 || index === 5 || index === 7) {
-                updatedRowData[key] = input.value.split('\n'); // Divide el texto por líneas
-            } else {
-                updatedRowData[key] = input.value;
+        let row = button.parentElement.parentElement;
+        let updatedRowData = {}; // Objeto para almacenar los datos actualizados
+        Array.from(row.cells).forEach((cell, index) => {
+            if (index < row.cells.length - 1) {
+                let input = cell.firstElementChild;
+                let key = catalogTable.rows[0].cells[index + 1].textContent.toLowerCase().replace(/ /g, "_"); // Ajusta el índice
+                if (index === 4 || index === 5 || index === 7) {
+                    updatedRowData[key] = input.value.split('\n'); // Divide el texto por líneas
+                } else {
+                    updatedRowData[key] = input.value;
+                }
             }
-        }
-    });
-    console.log('Datos a enviar (PUT):', updatedRowData); // Añadir un mensaje de depuración
-    try {
-        const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud PUT a la API
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedRowData)
         });
-        if (!response.ok) throw new Error('Error al actualizar el servicio');
-        loadTableData(); // Recarga los datos de la tabla
-        alert("Servicio actualizado exitosamente."); // Muestra una alerta
-    } catch (error) {
-        console.error('Error al actualizar el servicio:', error);
+        console.log('Datos a enviar (PUT):', updatedRowData); // Añadir un mensaje de depuración
+        try {
+            const response = await fetch(`${apiUrl}/${row.cells[0].textContent}`, { // Realiza la solicitud PUT a la API
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedRowData)
+            });
+            if (!response.ok) throw new Error('Error al actualizar el servicio');
+            loadTableData(); // Recarga los datos de la tabla
+            alert("Servicio actualizado exitosamente."); // Muestra una alerta
+        } catch (error) {
+            console.error('Error al actualizar el servicio:', error);
+        }
     }
-}
-        // Función para cancelar la edición de una fila
+
+    // Función para cancelar la edición de una fila
     function cancelEdit(button) {
         loadTableData(); // Recarga los datos de la tabla
     }
 
     // Función para alternar los botones de edición
     function toggleEditButtons(row, isEditing) {
-        row.querySelector('.edit-btn').style.display = isEditing ? 'none' : '';
-        row.querySelector('.save-btn').style.display = isEditing ? '' : 'none';
+                row.querySelector('.save-btn').style.display = isEditing ? '' : 'none';
         row.querySelector('.cancel-btn').style.display = isEditing ? '' : 'none';
         row.querySelector('.delete-btn').style.display = isEditing ? 'none' : '';
     }
@@ -270,7 +274,7 @@
             }
         });
         if (inputsValid) { // Si todos los campos son válidos
-            console.log('Campos validados. Datos a enviar:', newRowData);
+            console.log('Campos validados. Datos a enviar (POST):', newRowData);
             try {
                 const response = await fetch(apiUrl, { // Realiza la solicitud POST a la API
                     method: 'POST',
@@ -296,8 +300,6 @@
         let row = button.parentElement.parentElement;
         row.remove(); // Elimina la fila agregada
     }
-
-    document.addEventListener('DOMContentLoaded', loadTableData); // Carga los datos de la tabla cuando se carga la página
 </script>
 
 <footer>
